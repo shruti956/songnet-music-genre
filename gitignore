@@ -1,0 +1,23 @@
+# Data (too large for GitHub)
+data/
+fma_small/
+fma_metadata/
+*.zip
+*.mp3
+
+# Cached features and model files
+*.npy
+*.npz
+*.h5
+*.keras
+checkpoints/
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Notebooks and OS
+.ipynb_checkpoints/
+.DS_Store
