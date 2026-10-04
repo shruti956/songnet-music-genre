@@ -2,7 +2,7 @@
 
 UE24CS352A - Machine Learning Mini-Project
 
-Team members: `<Name 1 (SRN)>`, `<Name 2 (SRN)>`
+Team members: `<Shruti Sridhar (PES2UG24CS498)>`, `<Srikanth V Reddy (PES2UG24CS519)>`
 
 ## Overview
 
