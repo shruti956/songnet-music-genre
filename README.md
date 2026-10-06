@@ -2,36 +2,30 @@
 
 UE24CS352A - Machine Learning Mini-Project
 
-Team members: `<Shruti Sridhar (PES2UG24CS498)>`, `<Srikanth V Reddy (PES2UG24CS519)>`
+Team members: Shruti Sridhar (PES2UG24CS498), Srikanth V Reddy (PES2UG24CS519)
 
 ## Overview
 
-This project classifies music into genres from raw audio using a Convolutional
+This project classifies music into 8 genres from raw audio using a Convolutional
 Recurrent Neural Network (C-RNN), following the approach of *SongNet*
 (Stanford CS229, 2018). The model takes a mel-spectrogram as its only input,
-extracts features with 1-D convolutions along the time axis, and outputs a genre
-probability distribution at every timestep, which enables real-time
-classification while a song plays. The song-level prediction is the mean of the
-per-timestep predictions.
+extracts features with 1-D convolutions along the time axis, passes them through a
+GRU, and outputs a genre probability distribution at every timestep. This enables
+real-time classification while a song plays. The song-level prediction is the mean
+of the per-timestep predictions.
 
-We compare the C-RNN against four classical baselines (k-NN, Logistic
-Regression, MLP, Linear SVM) trained on the precomputed FMA features.
+We compare the C-RNN against four classical baselines (k-NN, Logistic Regression,
+MLP, Linear SVM) trained on the precomputed FMA features.
 
 ## Dataset
 
 [Free Music Archive (FMA)](https://github.com/mdeff/fma), `fma_small` subset:
+8,000 tracks (30-second clips), 8 balanced genres (Electronic, Experimental, Folk,
+Hip-Hop, Instrumental, International, Pop, Rock), split 70% / 20% / 10%
+(train / val / test, stratified, seed 42). A few corrupted mp3s are skipped during
+feature extraction, leaving 5,599 / 1,599 / 799 clips.
 
-- 8,000 tracks, 30-second clips
-- 8 balanced genres (1,000 clips each): Electronic, Experimental, Folk,
-  Hip-Hop, Instrumental, International, Pop, Rock
-- Split: 70% train / 20% validation / 10% test
-
-Downloads needed:
-
-- `fma_small.zip` (audio)
-- `fma_metadata.zip` (labels in `tracks.csv`, precomputed `features.csv`)
-
-> The dataset is NOT stored in this repo. See the setup section below.
+The dataset is NOT stored in this repo. `splits.csv` lists the exact split used.
 
 ## Project Structure
 
@@ -39,74 +33,78 @@ Downloads needed:
 .
 ├── README.md
 ├── requirements.txt
+├── splits.csv           # train/val/test assignment for every track
+├── models/best.pt       # trained C-RNN weights
 ├── src/
 │   ├── data.py          # load labels, create splits
 │   ├── features.py      # mel-spectrogram extraction
 │   ├── baselines.py     # k-NN, LR, MLP, SVM
 │   ├── model.py         # C-RNN architecture
-│   ├── train.py         # training loop
-│   └── evaluate.py      # accuracy, confusion matrix
-├── app/
-│   └── demo.py          # real-time classification demo
-├── notebooks/
-│   └── colab_runner.ipynb
-└── report/              # write-up and slides
+│   ├── train.py         # training loop (checkpoint + resume)
+│   └── evaluate.py      # test accuracy, confusion matrix
+├── app/demo.py          # real-time classification demo (Streamlit)
+├── notebooks/colab_runner.ipynb   # Colab notebook used for extraction and training
+└── report/              # write-up, slides, confusion matrix
 ```
 
-## Setup
+## Run the demo (quickest)
 
-### Option A: Google Colab (recommended)
-
-1. Open `notebooks/colab_runner.ipynb` in Colab and select a GPU runtime
-   (Runtime > Change runtime type > T4 GPU).
-2. The notebook clones this repo, installs dependencies, downloads the dataset
-   to `/content`, and saves cached features and checkpoints to Google Drive.
-
-### Option B: Local machine
+No dataset needed, only `models/best.pt` from this repo.
 
 ```bash
 git clone <your-repo-url>
 cd <repo-folder>
 python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
+venv\Scripts\activate            # Mac/Linux: source venv/bin/activate
 pip install -r requirements.txt
+streamlit run app/demo.py
 ```
 
-Download the dataset into a `data/` folder:
+Upload an mp3 or wav. The app shows the predicted genre, the probability of each
+genre, and how the prediction evolves over time. The "Simulate real-time
+classification" button replays the song second by second using only the audio
+heard so far.
 
+## Reproduce the full pipeline
+
+1. Download the data into a `data/` folder:
 ```bash
-mkdir data && cd data
-curl -O https://os.unil.cloud.switch.ch/fma/fma_metadata.zip
-curl -O https://os.unil.cloud.switch.ch/fma/fma_small.zip
-unzip fma_metadata.zip && unzip fma_small.zip
+   mkdir data && cd data
+   curl -O https://os.unil.cloud.switch.ch/fma/fma_metadata.zip
+   curl -O https://os.unil.cloud.switch.ch/fma/fma_small.zip
+   unzip fma_metadata.zip && unzip fma_small.zip && cd ..
 ```
-
-(If these links have changed, use the links in the official FMA repository.)
-
-## Usage
-
-Scripts are added as the project progresses. Planned commands:
-
+   (If the links have changed, use the official FMA repository.)
+2. Run the scripts from the repo root:
 ```bash
-python src/features.py      # extract and cache mel-spectrograms
-python src/baselines.py     # train and evaluate baselines
-python src/train.py         # train the C-RNN
-python src/evaluate.py      # results table and confusion matrix
-streamlit run app/demo.py   # launch the real-time demo
+   python src/features.py      # extract mel-spectrograms into features/
+   python src/baselines.py     # train and evaluate the baselines
+   python src/train.py         # train the C-RNN (GPU recommended)
+   python src/evaluate.py      # test accuracy and confusion matrix
 ```
+
+Feature extraction and training were run on Google Colab (T4 GPU). The cells we
+used are in `notebooks/colab_runner.ipynb`.
 
 ## Results
-
-To be filled in after training.
 
 | Model | Test Accuracy |
 |---|---|
 | Random guessing | 12.5% |
-| k-NN | TBD |
-| Logistic Regression | TBD |
-| MLP | TBD |
-| Linear SVM | TBD |
-| C-RNN (SongNet) | TBD |
+| k-NN | 44.5% |
+| Logistic Regression | 54.5% |
+| MLP | 58.0% |
+| Linear SVM | 53.5% |
+| **C-RNN (SongNet)** | **60.2%** |
+
+The C-RNN slightly outperforms the best baseline (MLP, 58.0%) while using only the
+raw mel-spectrogram as input. The baselines use the 518 precomputed FMA features.
+
+![Confusion matrix](report/confusion_matrix.png)
+
+International, Rock, Hip-Hop, Electronic and Folk are classified best. Pop and
+Instrumental are hardest: Pop is confused with Rock, International and Folk, and
+Instrumental with Experimental and Folk.
 
 ## References
 
