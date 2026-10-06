@@ -1,7 +1,10 @@
-torch
-numpy
-pandas
-librosa
-streamlit
-scikit-learn
-matplotlib
+  torch
+  numpy
+  pandas
+  scipy
+  soundfile
+  scikit-learn
+  matplotlib
+  streamlit
+  librosa
+  joblib
