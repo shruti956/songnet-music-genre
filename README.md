@@ -102,7 +102,6 @@ raw mel-spectrogram as input. The baselines use the 518 precomputed FMA features
 
 <img width="1200" height="1200" alt="confusion_matrix" src="https://github.com/user-attachments/assets/bcf592b0-179c-439e-83f3-4c7a817ba607" />
 
-![Confusion matrix](report/confusion_matrix.png)
 
 International, Rock, Hip-Hop, Electronic and Folk are classified best. Pop and
 Instrumental are hardest: Pop is confused with Rock, International and Folk, and
