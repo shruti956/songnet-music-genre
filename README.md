@@ -83,8 +83,9 @@ heard so far.
    python src/evaluate.py      # test accuracy and confusion matrix
 ```
 
-Feature extraction and training were run on Google Colab (T4 GPU). The cells we
-used are in `notebooks/colab_runner.ipynb`.
+Feature extraction and baselines were run on a Google Colab CPU runtime, and C-RNN
+training on a Colab GPU runtime. The cells we ran, with their outputs, are in
+`notebooks/colab_runner.ipynb`.
 
 ## Results
 
